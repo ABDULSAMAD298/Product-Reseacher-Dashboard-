@@ -398,7 +398,7 @@ export default function ResearchForm({ onJobStarted }) {
         <div>
           <p className="text-base font-medium text-[var(--text-primary)]">Research is in progress. Please wait…</p>
           <p className="text-sm text-[var(--text-muted)] mt-2 max-w-md">
-            This process may take up to 45 minutes depending on the number of products. Please keep this tab open —
+            This may take some time depending on the number of products. Please keep this tab open —
             you'll be taken to the results as soon as it's ready.
           </p>
         </div>
