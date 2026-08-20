@@ -127,7 +127,7 @@ export default function App() {
 
   // Form → Results.
   // The research call is synchronous, so this only fires once the webhook
-  // has responded with the final sheet/pdf URLs — the user never sees the
+  // has responded with the final sheet URL — the user never sees the
   // results view before those URLs exist.
   const handleJobComplete = useCallback((data) => {
     setResult(data);

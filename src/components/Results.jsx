@@ -1,5 +1,5 @@
 import React from 'react';
-import { CopyButton, IconDownload, IconAlert } from './ui.jsx';
+import { CopyButton, IconAlert } from './ui.jsx';
 
 // ── Icons ─────────────────────────────────────────────────────────────────
 
@@ -45,33 +45,17 @@ function ProductRow({ product }) {
   const isCompleted = (product.status || '').toLowerCase() === 'completed';
   return (
     <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(var(--border-rgb),0.04)] last:border-0">
-      <div className="min-w-0">
-        <p className="text-sm text-[var(--text-primary)] font-medium truncate">{product.product_name || 'Untitled product'}</p>
-        <span
-          className={`inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-full text-xs font-medium border
-            ${isCompleted
-              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-              : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-            }`}
-        >
-          <span className={`w-1.5 h-1.5 rounded-full ${isCompleted ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-          {product.status || 'unknown'}
-        </span>
-      </div>
-      {product.pdf_url ? (
-        <a
-          href={product.pdf_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-[rgba(var(--border-rgb),0.12)] text-xs
-                     font-medium text-[var(--text-secondary)] hover:border-[#3B82F6]/50 hover:text-[#3B82F6] transition-colors flex-shrink-0"
-        >
-          <IconDownload className="w-3.5 h-3.5" />
-          PDF
-        </a>
-      ) : (
-        <span className="text-xs text-[var(--text-faint)] flex-shrink-0">No PDF</span>
-      )}
+      <p className="text-sm text-[var(--text-primary)] font-medium truncate">{product.product_name || 'Untitled product'}</p>
+      <span
+        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border flex-shrink-0
+          ${isCompleted
+            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+            : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+          }`}
+      >
+        <span className={`w-1.5 h-1.5 rounded-full ${isCompleted ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+        {product.status || 'unknown'}
+      </span>
     </div>
   );
 }
@@ -79,7 +63,7 @@ function ProductRow({ product }) {
 // ── Main Results View ────────────────────────────────────────────────────────
 
 export default function Results({ result, onNewJob }) {
-  const { job_id, message, sheet_url, pdf_url, products, completed_at } = result;
+  const { job_id, message, sheet_url, products, completed_at } = result;
 
   const completedAt = completed_at
     ? new Date(completed_at).toLocaleString()
@@ -97,7 +81,9 @@ export default function Results({ result, onNewJob }) {
           <span className="text-xs text-emerald-400 font-medium uppercase tracking-wider">Completed</span>
         </div>
         <h2 className="text-lg font-semibold text-[var(--text-primary)] leading-tight">Research complete</h2>
-        {message && <p className="text-sm text-[var(--text-secondary)] mt-1">{message}</p>}
+        <p className="text-sm text-[var(--text-secondary)] mt-1">
+          {message || 'Your results are ready in the Google Sheet.'}
+        </p>
         <p className="text-xs text-[var(--text-muted)] mt-1">Finished at {completedAt}</p>
 
         {/* Job ID row */}
@@ -108,7 +94,7 @@ export default function Results({ result, onNewJob }) {
         </div>
       </div>
 
-      {/* ── Sheet / PDF links ── */}
+      {/* ── Sheet link ── */}
       <div>
         <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-3">Reports</p>
         <div className="flex flex-wrap gap-3">
@@ -117,13 +103,6 @@ export default function Results({ result, onNewJob }) {
             label="Open Google Sheet"
             icon={<IconExternalLink className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[#3B82F6] transition-colors" />}
           />
-          {!hasProducts && (
-            <LinkButton
-              href={pdf_url}
-              label="Download PDF Report"
-              icon={<IconDownload className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[#3B82F6] transition-colors" />}
-            />
-          )}
         </div>
       </div>
 
@@ -141,10 +120,10 @@ export default function Results({ result, onNewJob }) {
         </div>
       )}
 
-      {!sheet_url && !pdf_url && !hasProducts && (
+      {!sheet_url && !hasProducts && (
         <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/5 border border-amber-500/20 text-xs">
           <IconAlert className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
-          <p className="text-[var(--text-secondary)]">No report links were returned for this job.</p>
+          <p className="text-[var(--text-secondary)]">No report link was returned for this job.</p>
         </div>
       )}
 
