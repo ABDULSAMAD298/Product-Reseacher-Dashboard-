@@ -1,5 +1,5 @@
-import React from 'react';
-import { CopyButton, IconAlert } from './ui.jsx';
+import React, { useState } from 'react';
+import { CopyButton, IconAlert, IconChevronDown } from './ui.jsx';
 
 // ── Icons ─────────────────────────────────────────────────────────────────
 
@@ -12,6 +12,48 @@ function IconExternalLink({ className = 'w-4 h-4' }) {
     </svg>
   );
 }
+
+function IconFactory({ className = 'w-4 h-4' }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+      <path d="M2 20h20" />
+      <path d="M4 20V10l4 3V10l4 3V10l4 3V4l4 4v12" />
+    </svg>
+  );
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+
+const hasValue = (v) => v !== null && v !== undefined && v !== '';
+const joinFields = (fields) => fields.filter(hasValue).join(' · ');
+
+function confidenceTier(score) {
+  if (typeof score !== 'number') return 'none';
+  if (score >= 65) return 'high';
+  if (score >= 40) return 'medium';
+  return 'low';
+}
+
+const TIER_BADGE_CLASSES = {
+  high:   'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  medium: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  low:    'bg-[rgba(var(--border-rgb),0.06)] text-[var(--text-secondary)] border-[rgba(var(--border-rgb),0.12)]',
+  none:   'bg-[rgba(var(--border-rgb),0.06)] text-[var(--text-secondary)] border-[rgba(var(--border-rgb),0.12)]',
+};
+
+const TIER_DOT_CLASSES = {
+  high:   'bg-emerald-400',
+  medium: 'bg-amber-400',
+  low:    'bg-[var(--text-faint)]',
+  none:   'bg-[var(--text-faint)]',
+};
+
+const TIER_FALLBACK_LABEL = {
+  high:   'High confidence',
+  medium: 'Manual review',
+  low:    'Low confidence',
+  none:   'Unknown',
+};
 
 // ── Link button (opens in a new tab) ─────────────────────────────────────────
 
@@ -39,23 +81,132 @@ function LinkButton({ href, label, icon }) {
   );
 }
 
-// ── Per-product row (multi-product responses) ───────────────────────────────
+// ── Confidence badge (score-driven, 3 tiers) ─────────────────────────────────
 
-function ProductRow({ product }) {
-  const isCompleted = (product.status || '').toLowerCase() === 'completed';
+function ConfidenceBadge({ score, label }) {
+  const tier = confidenceTier(score);
+  const text = joinFields([label || TIER_FALLBACK_LABEL[tier], typeof score === 'number' ? `${score}%` : null]);
+
   return (
-    <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(var(--border-rgb),0.04)] last:border-0">
-      <p className="text-sm text-[var(--text-primary)] font-medium truncate">{product.product_name || 'Untitled product'}</p>
-      <span
-        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border flex-shrink-0
-          ${isCompleted
-            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-            : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-          }`}
+    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border flex-shrink-0 ${TIER_BADGE_CLASSES[tier]}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${TIER_DOT_CLASSES[tier]}`} />
+      {text}
+    </span>
+  );
+}
+
+// ── Manufacturer sub-card ─────────────────────────────────────────────────────
+
+function ManufacturerSection({ manufacturer }) {
+  const found = manufacturer && Object.values(manufacturer).some(hasValue);
+
+  return (
+    <div>
+      <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-2">Manufacturer</p>
+      {!found ? (
+        <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+          <IconFactory className="w-4 h-4 text-[var(--text-faint)] flex-shrink-0" />
+          Not found with sufficient evidence.
+        </div>
+      ) : (
+        <div className="flex items-start gap-2.5">
+          <IconFactory className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <p className="text-sm text-[var(--text-primary)] font-medium">{manufacturer.name || 'Unknown manufacturer'}</p>
+            {joinFields([manufacturer.website, manufacturer.phone, manufacturer.manufacturing_country]) && (
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                {joinFields([manufacturer.website, manufacturer.phone, manufacturer.manufacturing_country])}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Distributor card + list ──────────────────────────────────────────────────
+
+function DistributorCard({ distributor }) {
+  const subline = joinFields([distributor.business_type, distributor.country]);
+  const contactLine = joinFields([distributor.website, distributor.phone, distributor.email]);
+
+  return (
+    <div className="p-3 rounded-md bg-[var(--bg-surface)] border border-[rgba(var(--border-rgb),0.08)]">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm text-[var(--text-primary)] font-medium min-w-0 truncate">
+          {distributor.company_name || 'Unnamed distributor'}
+        </p>
+        <ConfidenceBadge score={distributor.confidence_score} label={distributor.verification_status} />
+      </div>
+      {subline && <p className="text-xs text-[var(--text-muted)] mt-1">{subline}</p>}
+      {contactLine && <p className="text-xs text-[var(--text-faint)] mt-0.5 truncate">{contactLine}</p>}
+    </div>
+  );
+}
+
+function DistributorsSection({ distributors }) {
+  const list = Array.isArray(distributors) ? distributors : [];
+
+  return (
+    <div>
+      <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+        Distributors found ({list.length})
+      </p>
+      {list.length === 0 ? (
+        <p className="text-sm text-[var(--text-muted)]">
+          No distributor candidates found in UAE or the searched fallback countries.
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {list.map((d, i) => <DistributorCard key={i} distributor={d} />)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Per-product row (expandable) ─────────────────────────────────────────────
+
+function ProductRow({ product, alwaysExpanded }) {
+  const [expanded, setExpanded] = useState(alwaysExpanded);
+  const isOpen = alwaysExpanded || expanded;
+  const isCompleted = (product.status || '').toLowerCase() === 'completed';
+
+  return (
+    <div className="border-b border-[rgba(var(--border-rgb),0.04)] last:border-0">
+      <button
+        type="button"
+        onClick={() => !alwaysExpanded && setExpanded((e) => !e)}
+        className={`w-full flex items-center justify-between gap-4 px-4 py-3 text-left transition-colors
+          ${alwaysExpanded ? 'cursor-default' : 'hover:bg-[rgba(var(--border-rgb),0.02)] cursor-pointer'}`}
       >
-        <span className={`w-1.5 h-1.5 rounded-full ${isCompleted ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-        {product.status || 'unknown'}
-      </span>
+        <div className="flex items-center gap-2 min-w-0">
+          {!alwaysExpanded && (
+            <IconChevronDown
+              className={`w-3.5 h-3.5 text-[var(--text-faint)] flex-shrink-0 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
+            />
+          )}
+          <p className="text-sm text-[var(--text-primary)] font-medium truncate">{product.product_name || 'Untitled product'}</p>
+        </div>
+        <span
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border flex-shrink-0
+            ${isCompleted
+              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+              : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+            }`}
+        >
+          <span className={`w-1.5 h-1.5 rounded-full ${isCompleted ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+          {product.status || 'unknown'}
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="px-4 pb-4 pt-1 space-y-4 border-t border-[rgba(var(--border-rgb),0.04)]">
+          <ManufacturerSection manufacturer={product.manufacturer} />
+          <DistributorsSection distributors={product.distributors} />
+        </div>
+      )}
     </div>
   );
 }
@@ -70,6 +221,7 @@ export default function Results({ result, onNewJob }) {
     : new Date().toLocaleString();
 
   const hasProducts = Array.isArray(products) && products.length > 0;
+  const singleProduct = hasProducts && products.length === 1;
 
   return (
     <div className="space-y-6">
@@ -106,7 +258,7 @@ export default function Results({ result, onNewJob }) {
         </div>
       </div>
 
-      {/* ── Per-product list (multi-product responses) ── */}
+      {/* ── Per-product list (manufacturer + distributor detail) ── */}
       {hasProducts && (
         <div>
           <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-3">
@@ -114,7 +266,7 @@ export default function Results({ result, onNewJob }) {
           </p>
           <div className="rounded-lg border border-[rgba(var(--border-rgb),0.08)] overflow-hidden">
             {products.map((p, i) => (
-              <ProductRow key={i} product={p} />
+              <ProductRow key={i} product={p} alwaysExpanded={singleProduct} />
             ))}
           </div>
         </div>
