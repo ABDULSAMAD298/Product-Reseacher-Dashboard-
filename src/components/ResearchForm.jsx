@@ -15,7 +15,7 @@ import {
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Field, Toggle, SectionHeader, IconGrip, IconX, IconSearch, IconChevronDown } from './ui.jsx';
+import { Field, Toggle, SectionHeader, IconGrip, IconX, IconSearch, IconChevronDown, IconInfo } from './ui.jsx';
 import { startResearchJob } from '../api.js';
 
 // ── Complete World Countries List ────────────────────────────────────────────
@@ -45,11 +45,6 @@ const ALL_COUNTRIES = [
   'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
 ];
 
-const DEFAULT_FALLBACK_COUNTRIES = [
-  'Saudi Arabia', 'Oman', 'Bahrain', 'Qatar', 'Kuwait',
-  'Pakistan', 'India', 'Bangladesh', 'Nepal', 'Sri Lanka',
-];
-
 const SEARCH_FILTERS = [
   { label: 'All prices', value: 'all' },
   { label: 'Cheapest', value: 'cheapest' },
@@ -63,14 +58,13 @@ const DEFAULT_FORM = {
   category: '',
   brand: '',
   search_filter: 'all',
-  quantity: 10,
   target_country: 'UAE',
-  fallback_countries: [...DEFAULT_FALLBACK_COUNTRIES],
+  fallback_countries: [],
   include_retailers: true,
   include_wholesalers: true,
   include_importers: true,
   include_official_distributors: true,
-  output_formats: ['XLSX', 'PDF'],
+  output_formats: ['PDF'],
 };
 
 // ── Searchable Country Select Dropdown ────────────────────────────────────────
@@ -203,66 +197,6 @@ function SortableCountryTag({ id, country, onRemove }) {
   );
 }
 
-// ── Quantity stepper ─────────────────────────────────────────────────────────
-
-function QuantityStepper({ value, onChange, error }) {
-  const handleChange = (v) => {
-    const num = Math.max(1, Math.min(25, Number(v)));
-    if (!isNaN(num)) onChange(num);
-  };
-
-  return (
-    <div className="flex items-center gap-3">
-      <div className={`flex items-center rounded-md border overflow-hidden transition-colors ${
-        error ? 'border-red-500/50' : 'border-[rgba(var(--border-rgb),0.08)]'
-      }`}>
-        <button
-          type="button"
-          onClick={() => handleChange(value - 1)}
-          disabled={value <= 1}
-          className="w-9 h-9 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)]
-                     hover:bg-[rgba(var(--border-rgb),0.04)] disabled:opacity-30 transition-colors text-base"
-        >
-          −
-        </button>
-        <input
-          type="number"
-          value={value}
-          min={1}
-          max={25}
-          onChange={(e) => handleChange(e.target.value)}
-          className="w-14 h-9 text-center bg-[var(--bg-surface)] text-[var(--text-primary)] text-sm border-x border-[rgba(var(--border-rgb),0.08)]
-                     focus:bg-[var(--bg-surface)] outline-none"
-        />
-        <button
-          type="button"
-          onClick={() => handleChange(value + 1)}
-          disabled={value >= 25}
-          className="w-9 h-9 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)]
-                     hover:bg-[rgba(var(--border-rgb),0.04)] disabled:opacity-30 transition-colors text-base"
-        >
-          +
-        </button>
-      </div>
-      <input
-        type="range"
-        min={1}
-        max={25}
-        value={value}
-        onChange={(e) => handleChange(e.target.value)}
-        className="flex-1 h-1.5 appearance-none rounded-full outline-none cursor-pointer
-                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5
-                   [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full
-                   [&::-webkit-slider-thumb]:bg-[#3B82F6] [&::-webkit-slider-thumb]:cursor-pointer"
-        style={{
-          background: `linear-gradient(to right, #3B82F6 ${((value - 1) / 24) * 100}%, rgba(var(--border-rgb),0.15) ${((value - 1) / 24) * 100}%)`,
-        }}
-      />
-      <span className="text-xs text-[var(--text-faint)] w-14 text-right">max 25</span>
-    </div>
-  );
-}
-
 // ── Main Form Component ──────────────────────────────────────────────────────
 
 export default function ResearchForm({ onJobStarted }) {
@@ -303,44 +237,26 @@ export default function ResearchForm({ onJobStarted }) {
     setCountrySearch('');
   };
 
-  // Output formats
-  const toggleFormat = (fmt) => {
-    setForm((f) => {
-      const has = f.output_formats.includes(fmt);
-      const next = has
-        ? f.output_formats.filter((x) => x !== fmt)
-        : [...f.output_formats, fmt];
-      return { ...f, output_formats: next };
-    });
-  };
-
   // Validation
   const validate = () => {
     const errs = {};
     if (!form.product_query.trim()) errs.product_query = 'Product name / keyword is required.';
     if (!form.target_country) errs.target_country = 'Target country is required.';
-    if (!form.quantity || form.quantity < 1 || form.quantity > 25)
-      errs.quantity = 'Number of products must be between 1 and 25.';
     if (form.website_url && !/^https?:\/\/.+\..+/.test(form.website_url))
       errs.website_url = 'Enter a valid URL (e.g. https://example.com).';
-    if (form.output_formats.length === 0) errs.output_formats = 'Select at least one output format.';
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   const isFormValid =
     !!form.product_query.trim() &&
-    !!form.target_country &&
-    form.quantity >= 1 &&
-    form.quantity <= 25 &&
-    form.output_formats.length > 0;
+    !!form.target_country;
 
   // Build the payload — omit optional empty fields
   const buildPayload = () => {
     const payload = {
       product_query: form.product_query.trim(),
       target_country: form.target_country,
-      quantity: Number(form.quantity),
       fallback_countries: form.fallback_countries,
       search_filter: form.search_filter,
       include_retailers: form.include_retailers,
@@ -504,7 +420,7 @@ export default function ResearchForm({ onJobStarted }) {
       <section>
         <SectionHeader
           title="Search parameters"
-          description="Control how many results to fetch and which price tier to target."
+          description="Choose which price tier to target."
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <Field label="Search filter">
@@ -519,13 +435,6 @@ export default function ResearchForm({ onJobStarted }) {
               ))}
             </select>
           </Field>
-          <Field label="Number of products" required error={errors.quantity}>
-            <QuantityStepper
-              value={form.quantity}
-              onChange={set('quantity')}
-              error={!!errors.quantity}
-            />
-          </Field>
         </div>
       </section>
 
@@ -535,7 +444,7 @@ export default function ResearchForm({ onJobStarted }) {
       <section>
         <SectionHeader
           title="Geography"
-          description="Set the primary target country. Fallback countries are searched in order if results are insufficient — drag to reprioritize."
+          description="Set the primary target country for research."
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
           <Field label="Target country" required error={errors.target_country}>
@@ -545,6 +454,17 @@ export default function ResearchForm({ onJobStarted }) {
               placeholder="Search & select target country..."
             />
           </Field>
+        </div>
+
+        <div className="flex items-start gap-3 p-4 rounded-lg bg-[#3B82F6]/5 border border-[#3B82F6]/20 mb-4">
+          <IconInfo className="w-4 h-4 text-[#3B82F6] flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm text-[var(--text-primary)] font-medium">Fallback Countries</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
+              If the target country doesn't have enough results, we'll search these countries next, in the order
+              you add them. Add as many as you'd like — leave empty to search only the target country.
+            </p>
+          </div>
         </div>
 
         <Field
@@ -644,59 +564,6 @@ export default function ResearchForm({ onJobStarted }) {
         </div>
       </section>
 
-      <div className="section-divider" />
-
-      {/* ── Section 5: Output Formats ── */}
-      <section>
-        <SectionHeader
-          title="Output formats"
-          description="Select at least one format. Both can be selected."
-        />
-        {errors.output_formats && (
-          <p className="text-xs text-red-400 mb-3 flex items-center gap-1">
-            <IconX className="w-3 h-3" /> {errors.output_formats}
-          </p>
-        )}
-        <div className="flex gap-3">
-          {['XLSX', 'PDF'].map((fmt) => {
-            const checked = form.output_formats.includes(fmt);
-            return (
-              <label
-                key={fmt}
-                className={`flex items-center gap-3 px-5 py-3 rounded-md border cursor-pointer transition-all duration-150
-                  ${checked
-                    ? 'border-[#3B82F6]/50 bg-[#3B82F6]/8 text-[var(--text-primary)]'
-                    : 'border-[rgba(var(--border-rgb),0.08)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-[rgba(var(--border-rgb),0.16)]'
-                  }`}
-              >
-                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-                  checked ? 'bg-[#3B82F6] border-[#3B82F6]' : 'border-white/20 bg-transparent'
-                }`}>
-                  {checked && (
-                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                  )}
-                </div>
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => toggleFormat(fmt)}
-                  className="sr-only"
-                  id={`format_${fmt}`}
-                />
-                <div>
-                  <p className="text-sm font-medium">{fmt === 'XLSX' ? 'Excel (.xlsx)' : 'PDF Report'}</p>
-                  <p className="text-xs text-[var(--text-muted)]">
-                    {fmt === 'XLSX' ? 'Tabular data, full details' : 'Executive summary report'}
-                  </p>
-                </div>
-              </label>
-            );
-          })}
-        </div>
-      </section>
-
       {/* ── Submit ── */}
       <div className="pt-2 flex items-start gap-4">
         <button
@@ -718,12 +585,6 @@ export default function ResearchForm({ onJobStarted }) {
             )}
             {!form.target_country && (
               <p className="text-xs text-[var(--text-faint)]">• Target country required</p>
-            )}
-            {(form.quantity < 1 || form.quantity > 25) && (
-              <p className="text-xs text-[var(--text-faint)]">• Quantity must be 1–25</p>
-            )}
-            {form.output_formats.length === 0 && (
-              <p className="text-xs text-[var(--text-faint)]">• Select at least one output format</p>
             )}
           </div>
         )}
