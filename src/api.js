@@ -4,7 +4,7 @@ import CONFIG from './config.js';
  * Shared fetch wrapper that attaches auth header and handles errors consistently.
  *
  * Uses AbortController (not a fetch `timeout` option — the native fetch API
- * doesn't have one) so long-running synchronous webhook calls can still be
+ * doesn't have one) so requests can be
  * aborted client-side after `timeoutMs`.
  *
  * @param {number} timeoutMs - Request timeout in milliseconds.
@@ -51,7 +51,9 @@ async function apiFetch(url, options = {}, timeoutMs = 30_000) {
     if (err.name === 'AbortError') {
       const minutes = Math.round(timeoutMs / 60_000);
       const timeoutErr = new Error(
-        `Request timed out — the research service took longer than ${minutes} minutes to respond.`,
+        minutes >= 1
+          ? `Request timed out — the research service took longer than ${minutes} minutes to respond.`
+          : 'Request timed out — the research service took too long to respond.',
       );
       timeoutErr.isTimeout = true;
       throw timeoutErr;
@@ -70,11 +72,11 @@ async function apiFetch(url, options = {}, timeoutMs = 30_000) {
 /**
  * Submit a new research job.
  *
- * This is a SYNCHRONOUS call: it resolves only once the entire research run
- * has completed, returning the final result directly (no job polling).
+ * Responds immediately with `{ success, job_id, status, status_check_url }`;
+ * poll `getJobStatus(job_id)` for progress.
  *
  * @param {Object} payload - Form fields matching backend contract
- * @returns {Promise<Object>} Final result — see Results.jsx for the two possible shapes.
+ * @returns {Promise<Object>}
  */
 export async function startResearchJob(payload) {
   return apiFetch(
@@ -82,4 +84,20 @@ export async function startResearchJob(payload) {
     { method: 'POST', body: JSON.stringify(payload) },
     CONFIG.RESEARCH_START_TIMEOUT_MS,
   );
+}
+
+/**
+ * Fetch the current status of a research job.
+ *
+ * The URL is built from CONFIG (rather than using the absolute
+ * `status_check_url` from the start response) so dev requests still go
+ * through the /api-proxy and avoid CORS.
+ *
+ * @param {string} jobId
+ * @returns {Promise<Object>} `{ success, status, percent, current_step,
+ *   total_steps, step_description, pdf_url }` or `{ success: false, error }`.
+ */
+export async function getJobStatus(jobId) {
+  const url = `${CONFIG.JOB_STATUS_URL}?job_id=${encodeURIComponent(jobId)}`;
+  return apiFetch(url, { method: 'GET' }, CONFIG.JOB_STATUS_TIMEOUT_MS);
 }

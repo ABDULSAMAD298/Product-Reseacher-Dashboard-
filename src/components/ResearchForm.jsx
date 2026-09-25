@@ -281,8 +281,8 @@ export default function ResearchForm({ onJobStarted }) {
     try {
       const payload = buildPayload();
       const result  = await startResearchJob(payload);
-      if (!result.success) {
-        throw new Error(result.message || 'Research job did not complete successfully.');
+      if (!result.success || !result.job_id) {
+        throw new Error(result.message || result.error || "The research job couldn't be started.");
       }
       onJobStarted(result);
     } catch (err) {
@@ -305,19 +305,13 @@ export default function ResearchForm({ onJobStarted }) {
       c.toLowerCase().includes(countrySearch.toLowerCase()),
   );
 
-  // While the synchronous research call is in flight, replace the form with
-  // a loading state — the request can take up to ~45 minutes to resolve.
+  // The start call responds quickly with a job_id; show a brief loading
+  // state until then, after which the app switches to the progress view.
   if (submitting) {
     return (
       <div className="flex flex-col items-center justify-center text-center py-20 space-y-5">
         <span className="spinner spinner-lg" />
-        <div>
-          <p className="text-base font-medium text-[var(--text-primary)]">Research is in progress. Please wait…</p>
-          <p className="text-sm text-[var(--text-muted)] mt-2 max-w-md">
-            This may take some time depending on the number of products. Please keep this tab open —
-            you'll be taken to the results as soon as it's ready.
-          </p>
-        </div>
+        <p className="text-base font-medium text-[var(--text-primary)]">Starting research job…</p>
       </div>
     );
   }

@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import ResearchForm from './components/ResearchForm.jsx';
+import JobProgress from './components/JobProgress.jsx';
 import Results from './components/Results.jsx';
 
 // ── View IDs ─────────────────────────────────────────────────────────────────
-const VIEW = { FORM: 'form', RESULTS: 'results' };
+const VIEW = { FORM: 'form', PROGRESS: 'progress', RESULTS: 'results' };
 
 // ── Theme toggle ─────────────────────────────────────────────────────────────
 
@@ -61,8 +62,9 @@ function Logo() {
 
 // ── Step indicator ───────────────────────────────────────────────────────────
 const STEPS = [
-  { id: VIEW.FORM,    label: 'Configure job' },
-  { id: VIEW.RESULTS, label: 'Results'       },
+  { id: VIEW.FORM,     label: 'Configure job' },
+  { id: VIEW.PROGRESS, label: 'Research'      },
+  { id: VIEW.RESULTS,  label: 'Results'       },
 ];
 
 function StepIndicator({ current }) {
@@ -107,13 +109,15 @@ function StepIndicator({ current }) {
 // ── View section titles ──────────────────────────────────────────────────────
 const VIEW_TITLES = {
   [VIEW.FORM]:     { title: 'New research job', subtitle: 'Fill in the fields below to kick off an automated B2B product research run.' },
-  [VIEW.RESULTS]:  { title: 'Research results', subtitle: 'Your job completed. Open your sheet or download the reports below.' },
+  [VIEW.PROGRESS]: { title: 'Research in progress', subtitle: 'Your job is running. Progress updates live below.' },
+  [VIEW.RESULTS]:  { title: 'Research results', subtitle: 'Your job completed. Download the report below.' },
 };
 
 // ── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [view, setView]     = useState(VIEW.FORM);
-  const [result, setResult] = useState(null); // Final response from the research webhook
+  const [job, setJob]       = useState(null); // Start response ({ job_id, ... })
+  const [result, setResult] = useState(null); // Final "completed" status response
   const [theme, setTheme]   = useState(getInitialTheme);
 
   useEffect(() => {
@@ -125,18 +129,22 @@ export default function App() {
     setTheme((t) => (t === 'light' ? 'dark' : 'light'));
   }, []);
 
-  // Form → Results.
-  // The research call is synchronous, so this only fires once the webhook
-  // has responded with the final sheet URL — the user never sees the
-  // results view before those URLs exist.
-  const handleJobComplete = useCallback((data) => {
-    setResult(data);
-    setView(VIEW.RESULTS);
+  // Form → Progress, as soon as the start call returns a job_id.
+  const handleJobStarted = useCallback((data) => {
+    setJob(data);
+    setView(VIEW.PROGRESS);
   }, []);
+
+  // Progress → Results, once polling reports status "completed".
+  const handleJobComplete = useCallback((data) => {
+    setResult({ ...data, job_id: data.job_id || job?.job_id });
+    setView(VIEW.RESULTS);
+  }, [job]);
 
   // Results → new job
   const handleNewJob = useCallback(() => {
     setView(VIEW.FORM);
+    setJob(null);
     setResult(null);
   }, []);
 
@@ -168,7 +176,10 @@ export default function App() {
         {/* View content */}
         <div className="card p-6 sm:p-8">
           {view === VIEW.FORM && (
-            <ResearchForm onJobStarted={handleJobComplete} />
+            <ResearchForm onJobStarted={handleJobStarted} />
+          )}
+          {view === VIEW.PROGRESS && job && (
+            <JobProgress job={job} onComplete={handleJobComplete} onNewJob={handleNewJob} />
           )}
           {view === VIEW.RESULTS && result && (
             <Results result={result} onNewJob={handleNewJob} />
