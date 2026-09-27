@@ -105,9 +105,9 @@ function SearchableCountrySelect({ value, onChange, placeholder = "Select countr
 
       {/* Floating Searchable Menu */}
       {isOpen && (
-        <div className="absolute z-50 left-0 right-0 mt-1.5 rounded-lg border border-[rgba(var(--border-rgb),0.12)] bg-[var(--bg-surface)] shadow-2xl overflow-hidden backdrop-blur-md">
+        <div className="absolute z-50 left-0 right-0 mt-1.5 rounded-lg border border-[rgba(var(--border-rgb),0.2)] bg-white shadow-lg overflow-hidden">
           {/* Search Box */}
-          <div className="p-2 border-b border-[rgba(var(--border-rgb),0.08)] relative">
+          <div className="p-2 border-b border-[rgba(var(--border-rgb),0.15)] relative">
             <IconSearch className="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -115,7 +115,7 @@ function SearchableCountrySelect({ value, onChange, placeholder = "Select countr
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search 195+ countries..."
-              className="w-full bg-[var(--bg-app)] border border-[rgba(var(--border-rgb),0.08)] rounded-md pl-9 pr-7 py-1.5 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-faint)] focus:border-[#3B82F6]/60 outline-none"
+              className="w-full bg-white border border-[rgba(var(--border-rgb),0.15)] rounded-md pl-9 pr-7 py-1.5 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-faint)] focus:border-[#2563EB]/60 outline-none"
             />
             {search && (
               <button
@@ -129,7 +129,7 @@ function SearchableCountrySelect({ value, onChange, placeholder = "Select countr
           </div>
 
           {/* Country List */}
-          <div className="max-h-56 overflow-y-auto divide-y divide-[rgba(var(--border-rgb),0.02)]">
+          <div className="max-h-56 overflow-y-auto divide-y divide-[rgba(var(--border-rgb),0.08)]">
             {filteredCountries.length > 0 ? (
               filteredCountries.map((country) => {
                 const isSelected = country === value;
@@ -144,13 +144,13 @@ function SearchableCountrySelect({ value, onChange, placeholder = "Select countr
                     }}
                     className={`w-full text-left px-3.5 py-2 text-xs transition-colors flex items-center justify-between ${
                       isSelected
-                        ? 'bg-[#3B82F6]/15 text-[#3B82F6] font-semibold'
+                        ? 'bg-blue-50 text-blue-700 font-semibold'
                         : 'text-[var(--text-secondary)] hover:bg-[rgba(var(--border-rgb),0.04)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     <span>{country}</span>
                     {isSelected && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
                     )}
                   </button>
                 );
@@ -188,7 +188,7 @@ function SortableCountryTag({ id, country, onRemove }) {
       <button
         type="button"
         onClick={() => onRemove(id)}
-        className="text-[var(--text-faint)] hover:text-red-400 transition-colors ml-0.5"
+        className="text-[var(--text-faint)] hover:text-red-600 transition-colors ml-0.5"
         title="Remove"
       >
         <IconX className="w-2.5 h-2.5" />
@@ -321,25 +321,25 @@ export default function ResearchForm({ onJobStarted }) {
 
       {/* ── API / Network errors ── */}
       {networkError && (
-        <div className="flex items-start gap-3 p-4 rounded-lg bg-red-500/5 border border-red-500/20">
-          <svg className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+        <div className="flex items-start gap-3 p-4 rounded-lg bg-red-50 border border-red-200">
+          <svg className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
             <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
             <line x1={12} y1={9} x2={12} y2={13}/><line x1={12} y1={17} x2={12.01} y2={17}/>
           </svg>
           <div className="flex-1">
-            <p className="text-red-300 text-sm font-medium">Submission failed</p>
+            <p className="text-red-700 text-sm font-medium">Submission failed</p>
             <p className="text-[var(--text-secondary)] text-sm mt-0.5">{networkError}</p>
           </div>
         </div>
       )}
 
       {apiErrors.length > 0 && (
-        <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
-          <p className="text-amber-300 text-sm font-medium mb-2">Validation errors from server</p>
+        <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
+          <p className="text-amber-800 text-sm font-medium mb-2">Validation errors from server</p>
           <ul className="space-y-1">
             {apiErrors.map((err, i) => (
               <li key={i} className="text-[var(--text-secondary)] text-sm flex items-start gap-2">
-                <span className="text-amber-400 mt-0.5">•</span>
+                <span className="text-amber-600 mt-0.5">•</span>
                 {typeof err === 'string' ? err : JSON.stringify(err)}
               </li>
             ))}
@@ -450,8 +450,8 @@ export default function ResearchForm({ onJobStarted }) {
           </Field>
         </div>
 
-        <div className="flex items-start gap-3 p-4 rounded-lg bg-[#3B82F6]/5 border border-[#3B82F6]/20 mb-4">
-          <IconInfo className="w-4 h-4 text-[#3B82F6] flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 p-4 rounded-lg bg-[#2563EB]/5 border border-[#2563EB]/20 mb-4">
+          <IconInfo className="w-4 h-4 text-[#2563EB] flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm text-[var(--text-primary)] font-medium">Fallback Countries</p>
             <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
@@ -475,7 +475,7 @@ export default function ResearchForm({ onJobStarted }) {
               items={form.fallback_countries}
               strategy={horizontalListSortingStrategy}
             >
-              <div className="flex flex-wrap gap-2 p-3 rounded-md bg-[var(--bg-surface)] border border-[rgba(var(--border-rgb),0.08)] min-h-[52px]">
+              <div className="flex flex-wrap gap-2 p-3 rounded-md bg-[var(--bg-surface)] border border-[rgba(var(--border-rgb),0.15)] min-h-[52px]">
                 {form.fallback_countries.length === 0 && (
                   <p className="text-xs text-[var(--text-faint)] self-center">No fallback countries added.</p>
                 )}
@@ -512,7 +512,7 @@ export default function ResearchForm({ onJobStarted }) {
               )}
             </div>
             {countrySearch && availableToAdd.length > 0 && (
-              <div className="mt-1 rounded-md border border-[rgba(var(--border-rgb),0.08)] bg-[var(--bg-surface)] overflow-hidden max-h-36 overflow-y-auto">
+              <div className="mt-1 rounded-md border border-[rgba(var(--border-rgb),0.15)] bg-[var(--bg-surface)] overflow-hidden max-h-36 overflow-y-auto">
                 {availableToAdd.slice(0, 10).map((c) => (
                   <button
                     key={c}
@@ -544,7 +544,7 @@ export default function ResearchForm({ onJobStarted }) {
             { field: 'include_importers', label: 'Importers' },
             { field: 'include_official_distributors', label: 'Official distributors' },
           ].map(({ field, label }) => (
-            <div key={field} className="flex items-center justify-between p-3 rounded-md bg-[var(--bg-surface)] border border-[rgba(var(--border-rgb),0.08)]">
+            <div key={field} className="flex items-center justify-between p-3 rounded-md bg-[var(--bg-surface)] border border-[rgba(var(--border-rgb),0.15)]">
               <div>
                 <p className="text-sm text-[var(--text-primary)] font-medium">{label}</p>
               </div>

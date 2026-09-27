@@ -4,37 +4,23 @@
 
 @layer base {
   /* ── Theme tokens ──────────────────────────────────────────────────────── */
-  /* Dark is the default theme. Light overrides live in [data-theme="light"]. */
+  /* Single light theme: white background, dark text. */
   :root {
-    --bg-app: #0f1115;
-    --bg-card: #1a1f2a;
-    --bg-surface: #14181f;
-
-    --text-primary: #E5E7EB;
-    --text-secondary: #9CA3AF;
-    --text-muted: #6B7280;
-    --text-faint: #4B5563;
-    --text-footer: #2D3340;
-
-    --accent: #3B82F6;
-    --accent-hover: #2563EB;
-
-    /* RGB channels (no alpha) so borders/overlays can use rgba(var(--border-rgb), x) at any opacity */
-    --border-rgb: 255, 255, 255;
-  }
-
-  :root[data-theme="light"] {
     --bg-app: #FFFFFF;
     --bg-card: #FFFFFF;
-    --bg-surface: #F3F4F6;
+    --bg-surface: #F9FAFB;
 
     --text-primary: #111827;
-    --text-secondary: #4B5563;
-    --text-muted: #6B7280;
-    --text-faint: #9CA3AF;
-    --text-footer: #D1D5DB;
+    --text-secondary: #374151;
+    --text-muted: #4B5563;
+    --text-faint: #6B7280;
+    --text-footer: #6B7280;
 
-    --border-rgb: 0, 0, 0;
+    --accent: #2563EB;
+    --accent-hover: #1D4ED8;
+
+    /* RGB channels (no alpha) so borders/overlays can use rgba(var(--border-rgb), x) at any opacity */
+    --border-rgb: 17, 24, 39;
   }
 
   *, *::before, *::after {
@@ -54,7 +40,6 @@
     min-height: 100vh;
     margin: 0;
     line-height: 1.6;
-    transition: background-color 0.15s ease, color 0.15s ease;
   }
 
   #root {
@@ -94,35 +79,35 @@
 @layer components {
   /* Form field */
   .field-base {
-    @apply w-full bg-[var(--bg-surface)] border border-[rgba(var(--border-rgb),0.08)] rounded-md px-3 py-2.5 text-[var(--text-primary)] text-sm
-           placeholder:text-[var(--text-faint)] transition-all duration-150
-           focus:border-[#3B82F6]/60 focus:ring-1 focus:ring-[#3B82F6]/30;
+    @apply w-full bg-white border border-[#D1D5DB] rounded-md px-3 py-2.5 text-[var(--text-primary)] text-sm
+           placeholder:text-[#9CA3AF] transition-all duration-150
+           focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30;
   }
   .field-error {
-    @apply border-red-500/50 focus:border-red-500/70 focus:ring-red-500/20;
+    @apply border-red-500 focus:border-red-600 focus:ring-red-500/20;
   }
 
   /* Card */
   .card {
-    @apply bg-[var(--bg-card)] border border-[rgba(var(--border-rgb),0.08)] rounded-lg;
+    @apply bg-[var(--bg-card)] border border-[#E5E7EB] rounded-lg shadow-sm;
   }
 
   /* Section separator */
   .section-divider {
-    @apply border-t border-[rgba(var(--border-rgb),0.06)] my-6;
+    @apply border-t border-[rgba(var(--border-rgb),0.12)] my-6;
   }
 
   /* Primary button */
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-[#3B82F6] hover:bg-[#2563EB]
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8]
            text-white text-sm font-medium rounded-md transition-all duration-150
-           disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#3B82F6]
-           focus-visible:ring-2 focus-visible:ring-[#3B82F6]/50 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--bg-app)];
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#2563EB]
+           focus-visible:ring-2 focus-visible:ring-[#2563EB]/50 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--bg-app)];
   }
 
   /* Secondary button */
   .btn-secondary {
-    @apply inline-flex items-center gap-2 px-4 py-2 bg-transparent border border-[rgba(var(--border-rgb),0.12)] hover:border-[rgba(var(--border-rgb),0.25)]
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#D1D5DB] hover:border-[#9CA3AF] hover:bg-[#F9FAFB]
            text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm font-medium rounded-md transition-all duration-150;
   }
 
@@ -139,37 +124,37 @@
     @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium;
   }
   .badge-high {
-    @apply badge bg-[#3B82F6]/15 text-[#3B82F6] border border-[#3B82F6]/20;
+    @apply badge bg-blue-50 text-blue-700 border border-blue-200;
   }
   .badge-probable {
-    @apply badge bg-[rgba(var(--border-rgb),0.05)] text-[var(--text-secondary)] border border-[rgba(var(--border-rgb),0.1)];
+    @apply badge bg-gray-100 text-gray-700 border border-gray-200;
   }
   .badge-review {
-    @apply badge bg-amber-500/10 text-amber-400 border border-amber-500/20;
+    @apply badge bg-amber-50 text-amber-800 border border-amber-200;
   }
   .badge-unreliable {
-    @apply badge bg-amber-600/10 text-amber-500 border border-amber-600/20;
+    @apply badge bg-orange-50 text-orange-800 border border-orange-200;
   }
 
   /* Progress bar */
   .progress-track {
-    @apply h-1.5 w-full bg-[rgba(var(--border-rgb),0.06)] rounded-full overflow-hidden;
+    @apply h-2 w-full bg-[#E5E7EB] rounded-full overflow-hidden;
   }
   .progress-fill {
-    @apply h-full bg-[#3B82F6] rounded-full transition-all duration-700 ease-out;
+    @apply h-full bg-[#2563EB] rounded-full transition-all duration-700 ease-out;
   }
 
   /* Tag pill */
   .tag-pill {
     @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium
-           bg-[var(--bg-surface)] border border-[rgba(var(--border-rgb),0.1)] text-[var(--text-secondary)] cursor-grab active:cursor-grabbing
-           hover:border-[#3B82F6]/30 hover:text-[var(--text-primary)] transition-all duration-100 select-none;
+           bg-white border border-[#D1D5DB] text-[var(--text-secondary)] cursor-grab active:cursor-grabbing
+           hover:border-[#2563EB]/50 hover:text-[var(--text-primary)] transition-all duration-100 select-none;
   }
 
   /* Toast */
   .toast {
     @apply fixed bottom-6 right-6 flex items-start gap-3 p-4 rounded-lg card shadow-xl z-50
-           text-sm text-[var(--text-primary)] max-w-sm border border-[rgba(var(--border-rgb),0.12)];
+           text-sm text-[var(--text-primary)] max-w-sm border border-[#E5E7EB] bg-white;
     animation: slideUp 0.2s ease-out;
   }
 
@@ -186,8 +171,8 @@
     display: inline-block;
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(var(--border-rgb), 0.15);
-    border-top-color: #3B82F6;
+    border: 2px solid #E5E7EB;
+    border-top-color: #2563EB;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
     flex-shrink: 0;

@@ -8,10 +8,10 @@ export default {
     extend: {
       colors: {
         surface: {
-          DEFAULT: '#0f1115',
-          raised: '#14181f',
-          card: '#1a1f2a',
-          border: 'rgba(255,255,255,0.08)',
+          DEFAULT: '#FFFFFF',
+          raised: '#F9FAFB',
+          card: '#FFFFFF',
+          border: '#E5E7EB',
         },
         accent: {
           DEFAULT: '#3B82F6',
@@ -20,9 +20,9 @@ export default {
           ring: 'rgba(59,130,246,0.35)',
         },
         text: {
-          primary: '#E5E7EB',
-          secondary: '#9CA3AF',
-          muted: '#6B7280',
+          primary: '#111827',
+          secondary: '#374151',
+          muted: '#4B5563',
         },
         status: {
           success: '#10B981',

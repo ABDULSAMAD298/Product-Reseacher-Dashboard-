@@ -1,42 +1,26 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import Login, { isAuthenticated, clearAuth } from './components/Login.jsx';
 import ResearchForm from './components/ResearchForm.jsx';
 import JobProgress from './components/JobProgress.jsx';
 import Results from './components/Results.jsx';
 
 // ── View IDs ─────────────────────────────────────────────────────────────────
-const VIEW = { FORM: 'form', PROGRESS: 'progress', RESULTS: 'results' };
+const VIEW = { LOGIN: 'login', FORM: 'form', PROGRESS: 'progress', RESULTS: 'results' };
 
-// ── Theme toggle ─────────────────────────────────────────────────────────────
+// ── Logout button ────────────────────────────────────────────────────────────
 
-function getInitialTheme() {
-  try {
-    return localStorage.getItem('prh_theme') === 'light' ? 'light' : 'dark';
-  } catch {
-    return 'dark';
-  }
-}
-
-function ThemeToggle({ theme, onToggle }) {
-  const isLight = theme === 'light';
+function LogoutButton({ onLogout }) {
   return (
     <button
       type="button"
-      onClick={onToggle}
-      title={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
-      className="w-8 h-8 flex items-center justify-center rounded-md border border-[rgba(var(--border-rgb),0.1)]
-                 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[rgba(var(--border-rgb),0.2)]
-                 transition-colors flex-shrink-0"
+      id="logout-btn"
+      onClick={onLogout}
+      className="btn-secondary text-xs px-3 py-1.5 flex-shrink-0"
     >
-      {isLight ? (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
-        </svg>
-      ) : (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-          <circle cx={12} cy={12} r={4} />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-        </svg>
-      )}
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+      </svg>
+      Logout
     </button>
   );
 }
@@ -45,8 +29,8 @@ function ThemeToggle({ theme, onToggle }) {
 function Logo() {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="w-7 h-7 rounded-md bg-[#3B82F6]/15 border border-[#3B82F6]/25 flex items-center justify-center">
-        <svg className="w-4 h-4 text-[#3B82F6]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <div className="w-7 h-7 rounded-md bg-[#2563EB]/15 border border-[#2563EB]/25 flex items-center justify-center">
+        <svg className="w-4 h-4 text-[#2563EB]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <circle cx={11} cy={11} r={8}/>
           <path d="m21 21-4.35-4.35"/>
           <path d="M11 8v3l2 2" strokeWidth={1.8}/>
@@ -79,9 +63,9 @@ function StepIndicator({ current }) {
             <div className="flex items-center gap-2">
               <div
                 className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all
-                  ${done   ? 'bg-[#3B82F6] text-white'
-                  : active ? 'bg-[#3B82F6]/15 text-[#3B82F6] border border-[#3B82F6]/50'
-                           : 'bg-[rgba(var(--border-rgb),0.05)] text-[var(--text-faint)] border border-[rgba(var(--border-rgb),0.08)]'}`}
+                  ${done   ? 'bg-[#2563EB] text-white'
+                  : active ? 'bg-[#2563EB]/15 text-[#2563EB] border border-[#2563EB]/50'
+                           : 'bg-[rgba(var(--border-rgb),0.05)] text-[var(--text-faint)] border border-[rgba(var(--border-rgb),0.15)]'}`}
               >
                 {done ? (
                   <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
@@ -97,7 +81,7 @@ function StepIndicator({ current }) {
               </span>
             </div>
             {i < STEPS.length - 1 && (
-              <div className={`w-8 sm:w-12 h-px mx-2 transition-colors ${done ? 'bg-[#3B82F6]/50' : 'bg-[rgba(var(--border-rgb),0.06)]'}`} />
+              <div className={`w-8 sm:w-12 h-px mx-2 transition-colors ${done ? 'bg-[#2563EB]/50' : 'bg-[rgba(var(--border-rgb),0.06)]'}`} />
             )}
           </React.Fragment>
         );
@@ -108,6 +92,7 @@ function StepIndicator({ current }) {
 
 // ── View section titles ──────────────────────────────────────────────────────
 const VIEW_TITLES = {
+  [VIEW.LOGIN]:    { title: 'Sign in', subtitle: 'Log in to start and view research jobs.' },
   [VIEW.FORM]:     { title: 'New research job', subtitle: 'Fill in the fields below to kick off an automated B2B product research run.' },
   [VIEW.PROGRESS]: { title: 'Research in progress', subtitle: 'Your job is running. Progress updates live below.' },
   [VIEW.RESULTS]:  { title: 'Research results', subtitle: 'Your job completed. Download the report below.' },
@@ -115,18 +100,34 @@ const VIEW_TITLES = {
 
 // ── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
+  const [authed, setAuthed] = useState(isAuthenticated);
   const [view, setView]     = useState(VIEW.FORM);
   const [job, setJob]       = useState(null); // Start response ({ job_id, ... })
   const [result, setResult] = useState(null); // Final "completed" status response
-  const [theme, setTheme]   = useState(getInitialTheme);
 
+  // Drop the old theme preference; there's only one theme now.
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    try { localStorage.setItem('prh_theme', theme); } catch {}
-  }, [theme]);
+    try { localStorage.removeItem('prh_theme'); } catch {}
+  }, []);
 
-  const toggleTheme = useCallback(() => {
-    setTheme((t) => (t === 'light' ? 'dark' : 'light'));
+  // Logging out in another tab logs this tab out too.
+  useEffect(() => {
+    const onStorage = () => setAuthed(isAuthenticated());
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  const handleLogin = useCallback(() => {
+    setAuthed(true);
+    setView(VIEW.FORM);
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    clearAuth();
+    setAuthed(false);
+    setView(VIEW.FORM);
+    setJob(null);
+    setResult(null);
   }, []);
 
   // Form → Progress, as soon as the start call returns a job_id.
@@ -148,19 +149,23 @@ export default function App() {
     setResult(null);
   }, []);
 
-  const { title, subtitle } = VIEW_TITLES[view];
+  // Every screen is behind the login gate.
+  const currentView = authed ? view : VIEW.LOGIN;
+  const { title, subtitle } = VIEW_TITLES[currentView];
 
   return (
     <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-primary)]">
 
       {/* ── Top bar ── */}
-      <header className="sticky top-0 z-30 bg-[color:var(--bg-app)]/90 backdrop-blur-sm border-b border-[rgba(var(--border-rgb),0.06)]">
+      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-[rgba(var(--border-rgb),0.12)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
           <Logo />
-          <div className="flex items-center gap-4">
-            <StepIndicator current={view} />
-            <ThemeToggle theme={theme} onToggle={toggleTheme} />
-          </div>
+          {authed && (
+            <div className="flex items-center gap-4">
+              <StepIndicator current={view} />
+              <LogoutButton onLogout={handleLogout} />
+            </div>
+          )}
         </div>
       </header>
 
@@ -175,13 +180,16 @@ export default function App() {
 
         {/* View content */}
         <div className="card p-6 sm:p-8">
-          {view === VIEW.FORM && (
+          {currentView === VIEW.LOGIN && (
+            <Login onLogin={handleLogin} />
+          )}
+          {currentView === VIEW.FORM && (
             <ResearchForm onJobStarted={handleJobStarted} />
           )}
-          {view === VIEW.PROGRESS && job && (
+          {currentView === VIEW.PROGRESS && job && (
             <JobProgress job={job} onComplete={handleJobComplete} onNewJob={handleNewJob} />
           )}
-          {view === VIEW.RESULTS && result && (
+          {currentView === VIEW.RESULTS && result && (
             <Results result={result} onNewJob={handleNewJob} />
           )}
         </div>

@@ -116,8 +116,8 @@ export function Toggle({ checked, onChange, label, id }) {
         onClick={() => onChange(!checked)}
         onKeyDown={(e) => (e.key === ' ' || e.key === 'Enter') && onChange(!checked)}
         className={`relative inline-flex h-5 w-9 cursor-pointer rounded-full transition-colors duration-200 outline-none
-          focus-visible:ring-2 focus-visible:ring-[#3B82F6]/50
-          ${checked ? 'bg-[#3B82F6]' : 'bg-white/10'}`}
+          focus-visible:ring-2 focus-visible:ring-[#2563EB]/50
+          ${checked ? 'bg-[#2563EB]' : 'bg-gray-300'}`}
       >
         <span
           className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200
@@ -141,12 +141,12 @@ export function Field({ label, required, error, hint, children, className = '' }
       {label && (
         <label className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1">
           {label}
-          {required && <span className="text-[#3B82F6] leading-none">*</span>}
+          {required && <span className="text-[#2563EB] leading-none">*</span>}
         </label>
       )}
       {children}
       {error && (
-        <p className="text-xs text-red-400 flex items-center gap-1">
+        <p className="text-xs text-red-600 flex items-center gap-1">
           <IconX className="w-3 h-3 flex-shrink-0" /> {error}
         </p>
       )}
@@ -208,7 +208,7 @@ export function CopyButton({ text }) {
       title="Copy to clipboard"
       className={`p-1 rounded transition-colors ${
         copied
-          ? 'text-[#3B82F6]'
+          ? 'text-[#2563EB]'
           : 'text-[var(--text-faint)] hover:text-[var(--text-secondary)]'
       }`}
     >
@@ -221,10 +221,10 @@ export function CopyButton({ text }) {
 
 export function Toast({ message, type = 'info', onDismiss }) {
   const iconMap = {
-    success: <IconCheck className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />,
-    warning: <IconAlert className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />,
-    error:   <IconX className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />,
-    info:    <IconInfo className="w-4 h-4 text-[#3B82F6] flex-shrink-0 mt-0.5" />,
+    success: <IconCheck className="w-4 h-4 text-emerald-700 flex-shrink-0 mt-0.5" />,
+    warning: <IconAlert className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />,
+    error:   <IconX className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />,
+    info:    <IconInfo className="w-4 h-4 text-[#2563EB] flex-shrink-0 mt-0.5" />,
   };
 
   return (
@@ -242,10 +242,10 @@ export function Toast({ message, type = 'info', onDismiss }) {
 
 export function NetworkErrorBanner({ message, onRetry }) {
   return (
-    <div className="flex items-start gap-3 p-4 rounded-lg bg-red-500/5 border border-red-500/20 text-sm">
-      <IconAlert className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+    <div className="flex items-start gap-3 p-4 rounded-lg bg-red-50 border border-red-200 text-sm">
+      <IconAlert className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
       <div className="flex-1">
-        <p className="text-red-300 font-medium">Connection error</p>
+        <p className="text-red-700 font-medium">Connection error</p>
         <p className="text-[var(--text-secondary)] mt-0.5">{message}</p>
       </div>
       {onRetry && (

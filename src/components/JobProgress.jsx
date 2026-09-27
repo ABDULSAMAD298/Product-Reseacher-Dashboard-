@@ -91,10 +91,10 @@ export default function JobProgress({ job, onComplete, onNewJob }) {
   if (error) {
     return (
       <div className="space-y-6">
-        <div className="flex items-start gap-3 p-4 rounded-lg bg-red-500/5 border border-red-500/20">
-          <IconAlert className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 p-4 rounded-lg bg-red-50 border border-red-200">
+          <IconAlert className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-red-300 text-sm font-medium">Something went wrong</p>
+            <p className="text-red-700 text-sm font-medium">Something went wrong</p>
             <p className="text-[var(--text-secondary)] text-sm mt-0.5">{error}</p>
           </div>
         </div>
@@ -121,10 +121,10 @@ export default function JobProgress({ job, onComplete, onNewJob }) {
 
   return (
     <div className="space-y-6">
-      <div className="p-5 rounded-lg bg-[var(--bg-surface)] border border-[#3B82F6]/15">
+      <div className="p-5 rounded-lg bg-[var(--bg-surface)] border border-[#2563EB]/15">
         <div className="flex items-center gap-2 mb-1">
           <span className="spinner spinner-sm" />
-          <span className="text-xs text-[#3B82F6] font-medium uppercase tracking-wider">In progress</span>
+          <span className="text-xs text-[#2563EB] font-medium uppercase tracking-wider">In progress</span>
         </div>
 
         <div className="flex items-baseline justify-between gap-4 mt-3">
@@ -148,7 +148,7 @@ export default function JobProgress({ job, onComplete, onNewJob }) {
           <p className="text-xs text-[var(--text-muted)] mt-2">Step {step} of {totalSteps}</p>
         )}
 
-        <div className="mt-4 pt-4 border-t border-[rgba(var(--border-rgb),0.06)]">
+        <div className="mt-4 pt-4 border-t border-[rgba(var(--border-rgb),0.12)]">
           <JobIdRow jobId={job_id} />
         </div>
       </div>

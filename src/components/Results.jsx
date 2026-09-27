@@ -20,7 +20,7 @@ function IconFileText({ className = 'w-4 h-4' }) {
 function LinkButton({ href, label, icon }) {
   if (!href) {
     return (
-      <div className="flex items-center gap-2 px-5 py-3 rounded-md bg-[var(--bg-surface)] border border-[rgba(var(--border-rgb),0.08)] text-sm text-[var(--text-muted)] opacity-50">
+      <div className="flex items-center gap-2 px-5 py-3 rounded-md bg-[var(--bg-surface)] border border-[rgba(var(--border-rgb),0.15)] text-sm text-[var(--text-muted)] opacity-50">
         {icon}
         {label}
       </div>
@@ -32,8 +32,8 @@ function LinkButton({ href, label, icon }) {
       target="_blank"
       rel="noopener noreferrer"
       className="inline-flex items-center gap-2 px-5 py-3 rounded-md border transition-all duration-150 text-sm font-medium
-                 bg-[var(--bg-surface)] border-[rgba(var(--border-rgb),0.12)] text-[var(--text-primary)] hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5
-                 hover:text-[#3B82F6] group"
+                 bg-[var(--bg-surface)] border-[rgba(var(--border-rgb),0.2)] text-[var(--text-primary)] hover:border-[#2563EB]/50 hover:bg-[#2563EB]/5
+                 hover:text-[#2563EB] group"
     >
       {icon}
       {label}
@@ -54,10 +54,10 @@ export default function Results({ result, onNewJob }) {
     <div className="space-y-6">
 
       {/* ── Summary header ── */}
-      <div className="p-5 rounded-lg bg-[var(--bg-surface)] border border-emerald-500/15">
+      <div className="p-5 rounded-lg bg-[var(--bg-surface)] border border-emerald-200">
         <div className="flex items-center gap-2 mb-1">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
-          <span className="text-xs text-emerald-400 font-medium uppercase tracking-wider">Completed</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+          <span className="text-xs text-emerald-700 font-medium uppercase tracking-wider">Completed</span>
         </div>
         <h2 className="text-lg font-semibold text-[var(--text-primary)] leading-tight">Research complete</h2>
         <p className="text-sm text-[var(--text-secondary)] mt-1">
@@ -66,7 +66,7 @@ export default function Results({ result, onNewJob }) {
         <p className="text-xs text-[var(--text-muted)] mt-1">Finished at {completedAt}</p>
 
         {/* Job ID row */}
-        <div className="mt-4 pt-4 border-t border-[rgba(var(--border-rgb),0.06)] flex items-center gap-2">
+        <div className="mt-4 pt-4 border-t border-[rgba(var(--border-rgb),0.12)] flex items-center gap-2">
           <span className="text-xs text-[var(--text-muted)]">Job ID</span>
           <span className="font-mono text-xs text-[var(--text-secondary)]">{job_id}</span>
           <CopyButton text={job_id} />
@@ -80,7 +80,7 @@ export default function Results({ result, onNewJob }) {
           <LinkButton
             href={pdf_url}
             label="📄 Download Report (PDF)"
-            icon={<IconFileText className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[#3B82F6] transition-colors" />}
+            icon={<IconFileText className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[#2563EB] transition-colors" />}
           />
         </div>
         {pdf_url && (
@@ -91,7 +91,7 @@ export default function Results({ result, onNewJob }) {
       </div>
 
       {/* ── New job button ── */}
-      <div className="pt-2 border-t border-[rgba(var(--border-rgb),0.06)]">
+      <div className="pt-2 border-t border-[rgba(var(--border-rgb),0.12)]">
         <button
           id="new-research-btn"
           onClick={onNewJob}
