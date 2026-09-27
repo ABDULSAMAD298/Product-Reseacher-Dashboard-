@@ -42,7 +42,7 @@ export const CONFIG = {
   // Dashboard login (UI gate only — the webhooks themselves are not protected
   // by this; these values ship in the client bundle).
   LOGIN_USERNAME: import.meta.env.VITE_LOGIN_USERNAME || 'Khamis',
-  LOGIN_PASSWORD: import.meta.env.VITE_LOGIN_PASSWORD || 'Prh-7mQx!42vKs9T',
+  LOGIN_PASSWORD: import.meta.env.VITE_LOGIN_PASSWORD || 'Qtpmart@12345pp',
 
   // Authentication header name and value sent on every request
   AUTH_HEADER_NAME:
